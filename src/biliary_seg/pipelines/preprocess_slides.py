@@ -3,8 +3,8 @@ import openslide
 import numpy as np
 from PIL import Image
 from typing import Optional
-from src.biliary_seg.data.geometry.annotations import Annotations
-from src.biliary_seg.data.geometry.rasterize import rasterize_annotations
+from biliary_seg.data.geometry.annotations import Annotations
+from biliary_seg.data.geometry.rasterize import rasterize_annotations
 
 
 def parse_slide(
