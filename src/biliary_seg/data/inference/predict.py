@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Tuple, Optional
-from src.biliary_seg.data.vision.patching import window_generator, insert_subimage
+from biliary_seg.data.patching import window_generator, insert_subimage
 
 def predict_mask(
     image: np.ndarray,
@@ -21,7 +21,7 @@ def predict_mask(
     )
     batch_windows = []
     batch_coords = []
-    for i, (window, (top, left)) in enumerate(window_generator):
+    for window, (top, left) in window_generator:
         batch_windows.append(window[np.newaxis, ...] / 255.0)
         batch_coords.append((top, left))
 

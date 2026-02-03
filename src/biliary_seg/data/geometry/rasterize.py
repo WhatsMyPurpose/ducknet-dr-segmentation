@@ -6,7 +6,7 @@ from shapely.geometry import Polygon
 from shapely.affinity import translate
 from typing import Optional, Tuple, Union, Callable
 from .annotations import Annotations
-from src.biliary_seg.data.vision.masks import get_slide_bg_mask
+from biliary_seg.data.inference.masks import get_slide_bg_mask
 
 
 def get_polygon_bounding_box(polygon: Polygon) -> Tuple[int, int, int, int]:

@@ -5,8 +5,8 @@ import numpy as np
 from typing import List, Tuple, Optional, Generator, Any, Literal
 from PIL import Image
 from functools import cached_property
-from src.biliary_seg.data.vision.masks import get_slide_bg_mask
-from src.biliary_seg.data.vision.patching import get_subimage
+from biliary_seg.data.inference.masks import get_slide_bg_mask
+from biliary_seg.data.patching import get_subimage
 
 Image.MAX_IMAGE_PIXELS = None
 
