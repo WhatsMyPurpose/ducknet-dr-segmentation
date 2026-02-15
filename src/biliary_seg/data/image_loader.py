@@ -15,14 +15,16 @@ class ImageLoader:
 
     def __init__(
         self,
+        id: str,
         image: np.ndarray,
         mask: Optional[np.ndarray] = None,
     ):
+        self.id: str = id
         self.image: np.ndarray = image
         self.mask: np.ndarray = (
             mask if mask is not None else np.zeros(image.shape[:2], dtype=bool)
         )
-    
+
     @staticmethod
     def from_data_dir(id: str, data_dir: str) -> "ImageLoader":
         image = ImageLoader._load_image(id, data_dir)
@@ -30,7 +32,7 @@ class ImageLoader:
             mask = ImageLoader._load_mask(id, data_dir)
         except FileNotFoundError:
             mask = None
-        return ImageLoader(image, mask)
+        return ImageLoader(id, image, mask)
 
     @staticmethod
     def _load_image(id: str, data_dir: str):
@@ -43,7 +45,7 @@ class ImageLoader:
         path = os.path.join(data_dir, "masks", f"{id}.npy")
         mask = np.load(path)
         return mask.astype(bool)
-    
+
     @cached_property
     def background_mask(self):
         return get_slide_bg_mask(self.image)
@@ -59,7 +61,7 @@ class ImageLoader:
     @cached_property
     def contains_biliary_populations(self):
         return self.mask.sum() > 0
-    
+
     def random_sample(
         self,
         image_size: Tuple[int, int] = (512, 512),

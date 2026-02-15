@@ -33,10 +33,10 @@ class FullImageValidationCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         """Evaluate model on full images at the end of each epoch."""
-        dice_loss, metrics = self.dataset.validation_evaluator(
-            self.model, self.image_size, self.batch_size
+        dice_loss, metrics = self.dataset.evaluate_model(
+            self.model, self.batch_size, self.image_size
         )
-        
+
         metric_logs = {f"val_full_{k.lower()}": v for k, v in metrics.items()}
         metric_logs["val_full_dice_loss"] = dice_loss
         logs.update(metric_logs)
@@ -44,7 +44,7 @@ class FullImageValidationCallback(tf.keras.callbacks.Callback):
         # Update best dice if improved
         if dice_loss < self.best_dice:
             self.best_dice = dice_loss
-        
+
         print(
             f"\n[Epoch {epoch+1}] Full Image Eval: "
             f"Dice Loss: {dice_loss:.4f} | "

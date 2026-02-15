@@ -6,20 +6,22 @@ from biliary_seg.data import DatasetLoader
 from biliary_seg.training.losses import dice_metric_loss
 from biliary_seg.training.callbacks import (
     LoadBestModelOnLRChange,
-    FullImageValidationCallback
+    FullImageValidationCallback,
 )
 from biliary_seg.models.ducknet import DUCK_Net
 
-gpus = tf.config.list_physical_devices('GPU')
+gpus = tf.config.list_physical_devices("GPU")
 if gpus:
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
+
 
 def load_ducknet_model(filepath: Optional[str], **kwargs) -> tf.keras.Model:
     model = DUCK_Net.create_model(**kwargs)
     if filepath:
         model.load_weights(filepath)
     return model
+
 
 def train_model(
     data_dir: str,
@@ -44,22 +46,24 @@ def train_model(
         )
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, clipnorm=1.0)
     model.compile(optimizer=optimizer, loss=dice_metric_loss)
-    
+
     # Load dataset
     dataset = DatasetLoader.from_data_dir(data_dir)
-    
-    train_gen = dataset.train_generator(
+
+    train_gen = dataset["train"].sample_generator(
         batch_size=batch_size,
         image_size=image_size,
         augmentation=training_augmentations,
     )
-    
+
     # Prepare callbacks
     best_model_checkpoint = Path(checkpoint_dir) / "best_model.h5"
     full_image_callback = FullImageValidationCallback(
-        image_size=image_size, batch_size=4, dataset=dataset
+        image_size=image_size, batch_size=4, dataset=dataset["validation"]
     )
-    load_best_model_callback = LoadBestModelOnLRChange(filepath=str(best_model_checkpoint))
+    load_best_model_callback = LoadBestModelOnLRChange(
+        filepath=str(best_model_checkpoint)
+    )
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
         monitor="full_image_dice_loss",
         factor=0.5,
@@ -78,7 +82,7 @@ def train_model(
         log_dir=str(Path(checkpoint_dir) / "logs"),
         histogram_freq=1,
     )
-    
+
     # Train the model
     model.fit(
         train_gen,
@@ -94,6 +98,7 @@ def train_model(
     )
 
     return model
+
 
 if __name__ == "__main__":
     trained_model = train_model(
