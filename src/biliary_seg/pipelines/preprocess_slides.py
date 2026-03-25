@@ -16,9 +16,8 @@ def parse_slide(
     annotation_remove_tag: Optional[str] = "remove",
     annotation_roi_tag: Optional[str] = "roi",
 ) -> None:
-    
     """Preprocess a slide by downsampling, rasterizing annotations, and saving images and masks.
-    
+
     Args:
         slide_id (str): Identifier for the slide.
         slide_path (str): Path to the slide file.
@@ -27,35 +26,46 @@ def parse_slide(
         downsample_factor (int, optional): Factor by which to downsample the slide. Defaults to 8.
         annotation_remove_tag (Optional[str], optional): Annotation name tag for regions to remove. Defaults to "remove".
         annotation_roi_tag (Optional[str], optional): Annotation name tag for regions of interest. Defaults to "roi".
-    
+
     """
-    
+
     # Create output directory
     for sub in ("images", "masks"):
         os.makedirs(os.path.join(output_dir, sub), exist_ok=True)
-    
+
     # Get downsampled slide
     slide = openslide.open_slide(slide_path)
     downsample_level = slide.get_best_level_for_downsample(downsample_factor)
-    downsampled_slide = slide.read_region((0, 0), downsample_level, slide.level_dimensions[downsample_level])
-    
+    downsampled_slide = slide.read_region(
+        (0, 0), downsample_level, slide.level_dimensions[downsample_level]
+    )
+
     if not annotation_path:
         # Save downsampled slide as image
         downsampled_slide.save(os.path.join(output_dir, "images", f"{slide_id}.png"))
         return
-    
+
     annotations = Annotations.from_geojson_file(annotation_path)
-    
-    full_mask = rasterize_annotations(
-        slid=slide,
-        annotations=annotations,
-        downsample_factor=downsample_factor,
-    )
-    
-    # Handle annotations of area to remove from mask and image
     annotations_to_remove = [
         ann for ann in annotations if ann.name.lower() == annotation_remove_tag.lower()
     ]
+    roi_annotations = [
+        ann for ann in annotations if ann.name.lower() == annotation_roi_tag.lower()
+    ]
+    biliary_annotations = [
+        ann
+        for ann in annotations
+        if ann.name.lower()
+        not in {annotation_remove_tag.lower(), annotation_roi_tag.lower()}
+    ]
+
+    full_mask = rasterize_annotations(
+        slide=slide,
+        annotations=Annotations(biliary_annotations),
+        downsample_factor=downsample_factor,
+    )
+
+    # Handle annotations of area to remove from mask and image
     if annotations_to_remove:
         remove_mask = rasterize_annotations(
             slide=slide,
@@ -68,11 +78,8 @@ def parse_slide(
         downsampled_slide = Image.fromarray(downsampled_slide_np)
 
         full_mask[remove_mask] = 0
-    
+
     # Handle ROI annotations
-    roi_annotations = [
-        ann for ann in annotations if ann.name.lower() == annotation_roi_tag.lower()
-    ]
     if roi_annotations:
         print(f"Found {len(roi_annotations)} ROIs in slide {slide_id}.")
         for idx, roi_ann in enumerate(roi_annotations):
