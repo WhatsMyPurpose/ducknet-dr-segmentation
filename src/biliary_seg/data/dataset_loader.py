@@ -43,7 +43,7 @@ class Dataset:
                 image_loader: ImageLoader = np.random.choice(
                     self.image_loaders, p=self.image_weights
                 )
-                x, _, y = image_loader.random_sample(
+                x, y = image_loader.random_sample(
                     image_size=image_size,
                     require_mask=(i < batch_size // 2),
                     augmentation=augmentation,
