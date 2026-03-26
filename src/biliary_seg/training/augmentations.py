@@ -28,13 +28,14 @@ class RandomHEDJitter(A.ImageOnlyTransform):
         return {"alphas": alphas, "betas": betas}
 
     def apply(
-        self, 
-        img: np.ndarray, 
-        alphas: Tuple[float, float] = (1, 1), 
-        betas: Tuple[float, float] = (0, 0)
-        ) -> np.ndarray:
+        self,
+        img: np.ndarray,
+        alphas: Tuple[float, float] = (1, 1),
+        betas: Tuple[float, float] = (0, 0),
+        **kwargs
+    ) -> np.ndarray:
         """Apply HED jittering to the image.
-        
+
         Args:
             img:  Input RGB image as a numpy array.
             alphas: Scaling factors for H and E channels.
@@ -49,13 +50,26 @@ class RandomHEDJitter(A.ImageOnlyTransform):
         rgb_out = np.clip(hed2rgb(hed), 0, 1)
         return (rgb_out * 255).astype(np.uint8)
 
+
 training_augmentations = A.Compose(
     [
         A.HorizontalFlip(p=0.5),
         A.VerticalFlip(p=0.5),
         A.RandomRotate90(p=0.5),
+        A.ShiftScaleRotate(
+            shift_limit=0.03,
+            scale_limit=0.10,
+            rotate_limit=15,
+            border_mode=0,
+            p=0.25,
+        ),
         A.GaussianBlur(blur_limit=(3, 7), p=0.1),
         RandomHEDJitter(p=0.7),
+        A.RandomBrightnessContrast(
+            brightness_limit=0.10,
+            contrast_limit=0.10,
+            p=0.2,
+        ),
     ],
     additional_targets={"image_context": "image"},
 )
