@@ -65,7 +65,7 @@ def train_model(
         filepath=str(best_model_checkpoint)
     )
     reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-        monitor="full_image_dice_loss",
+        monitor="val_full_dice_loss",
         factor=0.5,
         patience=10,
         min_lr=1e-6,
@@ -73,7 +73,7 @@ def train_model(
     )
     save_best_model_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=str(best_model_checkpoint),
-        monitor="full_image_dice_loss",
+        monitor="val_full_dice_loss",
         verbose=1,
         save_best_only=True,
         mode="min",
@@ -89,8 +89,8 @@ def train_model(
         epochs=epochs,
         steps_per_epoch=steps_per_epoch,
         callbacks=[
-            reduce_lr,
             full_image_callback,
+            reduce_lr,
             save_best_model_callback,
             load_best_model_callback,
             tensorboard_callback,
