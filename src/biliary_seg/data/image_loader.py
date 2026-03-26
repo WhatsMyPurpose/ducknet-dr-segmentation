@@ -26,8 +26,19 @@ class ImageLoader:
         )
 
     @staticmethod
+    def _to_3c(img: np.ndarray) -> np.ndarray:
+        """Ensure 3 channels (RGB-ish). If 1-channel, replicate; if >3, take first 3."""
+        img = np.atleast_3d(img)
+        if img.shape[2] == 1:
+            return np.repeat(img, 3, axis=2)
+        elif img.shape[2] >= 3:
+            return img[:, :, :3]
+        raise ValueError(f"Unsupported number of channels: {img.shape[2]}")
+
+    @staticmethod
     def from_data_dir(id: str, data_dir: str) -> "ImageLoader":
         image = ImageLoader._load_image(id, data_dir)
+        image = ImageLoader._to_3c(image)
         try:
             mask = ImageLoader._load_mask(id, data_dir)
         except FileNotFoundError:
