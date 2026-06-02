@@ -1,0 +1,36 @@
+# Core deep learning (TensorFlow 2.10 — last release with native Windows GPU support)
+tensorflow==2.10.1
+keras==2.10.0
+
+# Numerics / data
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.10.1
+
+# Imaging
+pillow==11.3.0
+opencv-python==4.9.0.80
+scikit-image==0.19.3
+tifffile==2024.1.30
+imageio==2.33.1
+
+# Whole-slide IO
+openslide-python==1.4.1
+openslide-bin==4.0.0.6
+
+# Geometry / mask <-> GeoJSON
+shapely==2.0.2
+rasterio==1.3.9
+
+# Augmentations
+albumentations==1.3.1
+
+# Notebooks / plotting
+matplotlib==3.8.2
+ipykernel==6.29.1
+jupyter_client==8.6.0
+jupyter_core==5.7.1
+
+# Utilities
+tqdm==4.65.2
+openpyxl==3.1.5
