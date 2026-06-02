@@ -4,10 +4,9 @@ import numpy as np
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.ops import unary_union
 from shapely import geometry as sg
-from typing import Iterable,  List, Union
+from typing import Iterable, List, Union
 
 from copy import deepcopy
-
 
 
 class Annotation:
@@ -19,7 +18,7 @@ class Annotation:
     def _downsample_nested_coordinates(lst: Union[list, int], downsample_factor: int):
         """
         Recursively downsample a nested list by a given factor.
-        
+
         Args:
             lst (list or int): The nested list or integer to downsample.
             downsample_factor (int): The factor by which to downsample.
@@ -33,7 +32,7 @@ class Annotation:
 
     def get_coordinates(self, downsample_factor: int) -> list:
         """Get downsampled coordinates of the geometry.
-        
+
         Args:
             downsample_factor (int): The downsampling factor.
         """
@@ -42,7 +41,7 @@ class Annotation:
 
     def get_polygons(self, downsample_factor: int) -> List[Polygon]:
         """Get list of shapely Polygons from the geometry.
-        
+
         Args:
             downsample_factor (int): The downsampling factor.
         """
@@ -61,7 +60,7 @@ class Annotation:
 
     def get_geometry(self, downsample_factor: int):
         """Get shapely geometry object.
-        
+
         Args:
             downsample_factor (int): The downsampling factor.
         """
@@ -82,9 +81,10 @@ class Annotation:
     @property
     def name(self) -> str:
         properties = self.geo_json["properties"]
-        return properties.get(
-            "name", properties.get("classification", {}).get("name", "Unknown")
-        )
+        classification = properties.get("classification", {})
+        if isinstance(classification, dict):
+            return properties.get("name", classification.get("name", "Unknown"))
+        return classification
 
     @property
     def geo_type(self) -> str:
@@ -120,7 +120,7 @@ class Annotations:
     @staticmethod
     def _annotations_from_geojson(geo_json: dict) -> List[Annotation]:
         """Convert geojson dict to list of Annotation objects.
-        
+
         Args:
             geo_json (dict): The geojson dictionary.
         """
