@@ -2,6 +2,7 @@ import numpy as np
 from typing import Tuple, Optional
 from biliary_seg.data.patching import window_generator, insert_subimage
 
+
 def predict_mask(
     image: np.ndarray,
     model,
@@ -11,9 +12,19 @@ def predict_mask(
     batch_size: int = 4,
     context_factor: Optional[float] = None,
 ) -> np.ndarray:
-    """Predict segmentation mask for a given image using a sliding window approach."""
+    """Predict segmentation mask for a given image using a sliding window approach.
+
+    Args:
+        image: Input image as a numpy array (H x W x C).
+        model: Trained segmentation model with a .predict() method.
+        image_size: Size of the input images for the model (height, width).
+        window_overlap: Fractional overlap between windows (0 to 1).
+        threshold: Threshold for converting predicted probabilities to binary mask.
+        batch_size: Number of windows to process in each batch for prediction.
+        context_factor: Optional factor to include additional context around each window.
+    """
     pred_mask = np.zeros_like(image[..., 0], dtype=bool)
-    window_generator = window_generator(
+    _window_generator = window_generator(
         image,
         window_size=image_size,
         window_overlap=window_overlap,
@@ -21,7 +32,7 @@ def predict_mask(
     )
     batch_windows = []
     batch_coords = []
-    for window, (top, left) in window_generator:
+    for window, (top, left) in _window_generator:
         batch_windows.append(window[np.newaxis, ...] / 255.0)
         batch_coords.append((top, left))
 
